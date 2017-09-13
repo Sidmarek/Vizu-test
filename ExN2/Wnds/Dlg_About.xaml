@@ -22,7 +22,7 @@
         <StackPanel Orientation="Horizontal">
         </StackPanel>
         <TextBox x:Name="textBox_empty" Grid.Row="2" HorizontalAlignment="Stretch" Margin="5" TextWrapping="Wrap" Text="- - -"  FontSize="11" IsEnabled="False"/>
-        <Button x:Name="btn_Back" Grid.Row="3" Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" Width="75" Click="button_Click" Height="31"/>
+        <Button x:Name="btn_Back" Grid.Row="3" Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" Width="75" Click="button_Cancel" Height="31"/>
 
     </Grid>
-</Window>
+ </Window>

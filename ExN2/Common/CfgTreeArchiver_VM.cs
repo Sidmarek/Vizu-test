@@ -4,16 +4,14 @@ using System.ComponentModel;
 namespace ExN2 {
     
     // config tree view: ViewModel of ending node = leaf
-    public class CfgTreeLeaf_VM : INotifyPropertyChanged {
+    public class CfgTreeArchiver_VM : INotifyPropertyChanged {
         public event PropertyChangedEventHandler PropertyChanged;
 
         private String _LeafName;       // textual name of item
-        private String _ImageFile;      // bitmap file name without path
 
         //.......................................................................................
-        public CfgTreeLeaf_VM(String LeafName, String ImageFile) {
-            _LeafName = LeafName;
-            _ImageFile = ImageFile;
+        public CfgTreeArchiver_VM() {
+            _LeafName = "archiver 1";
         }
 
         //.......................................................................................
@@ -27,7 +25,7 @@ namespace ExN2 {
         //.......................................................................................
         public string ImageUri {
             get {
-                return "pack://application:,,,/resources/" + _ImageFile;
+                return "pack://application:,,,/resources/" + "archiver.png";
             }
         }
 

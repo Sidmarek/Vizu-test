@@ -22,7 +22,7 @@ namespace ExN2 {
             textBox_version.Text = Common.version;
         }
 
-        private void button_Click(object sender, RoutedEventArgs e) {
+        private void button_Cancel(object sender, RoutedEventArgs e) {
             this.Close();
         }
     }

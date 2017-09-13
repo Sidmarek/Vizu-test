@@ -16,67 +16,85 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+
+
 namespace ExN2
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
-    {
-        CfgTreeLeaf_VM[] mesta;
-        CfgTreeLeaf_VM[] mesta2;
+    public partial class MainWindow : Window {
         CfgTreeNode_VM[] nodes;
 
-        public MainWindow()
-        {
+        public MainWindow() {
             InitializeComponent();
 
-            mesta = new CfgTreeLeaf_VM[] {
-                    new CfgTreeLeaf_VM("Praha", "node.png"),
-                    new CfgTreeLeaf_VM("Ostrava", "node2.png"),
-                    new CfgTreeLeaf_VM("Brno", "root.png")
-               };
-
-            mesta2 = new CfgTreeLeaf_VM[] {
-                    new CfgTreeLeaf_VM("Praha2", "node.png"),
-                    new CfgTreeLeaf_VM("Ostrav2a", "node2.png"),
-                    new CfgTreeLeaf_VM("Brno2", "root.png")
-                };
-
             nodes = new CfgTreeNode_VM[] {
-                    new CfgTreeNode_VM("group1", "node.png", mesta),
-                    new CfgTreeNode_VM("group2", "node.png", mesta2)
+                    new CfgTreeNode_Loaders_VM()
+                    /*new CfgTreeNode_Archivers_VM("archivers", "archiver.png")*/
                 };
 
+            CfgTreeNode_Loaders_VM node0 = nodes[0] as CfgTreeNode_Loaders_VM;
+            CfgEventLoader loader = new CfgEventLoader();
+            node0.AddLeaf(loader);
 
+            /*CfgTreeNode_Archivers_VM node1 = nodes[1] as CfgTreeNode_Archivers_VM;
+            CfgTreeArchiver_VM archiver = new CfgTreeArchiver_VM();*/
+            //node1.AddLeaf(archiver);
+            //node1.AddLeaf(archiver);
+
+
+            treeView.ItemsSource = nodes;
+            //treeView.
         }
 
-        private void button_Exit_Click(object sender, RoutedEventArgs e)
-        {
+        private void button_Exit_Click(object sender, RoutedEventArgs e) {
             this.Close();
         }
 
         private void button_Open_Click(object sender, RoutedEventArgs e) {
-
-            treeView.ItemsSource = nodes;
-
-         }
+            //            treeView.ItemsSource = nodes;
+        }
 
         private void button_Save_Click(object sender, RoutedEventArgs e) {
-            nodes[0].LeafList[1].LeafName = "Zmena";
+            //nodes[0].LeafList[1].LeafName = "Zmena";
+        }
 
-         }
+ 
+        //...............................................................................
+        private void treeView_BtnNew(object sender, RoutedEventArgs e) {
+            //Object ob = treeView.SelectedItem;
+            //if (Common.IsItLoader(ob)) {
+                nodes[0].New(this);
+            //}
+        }
 
+        //...............................................................................
+        private void treeView_BtnDel(object sender, RoutedEventArgs e) {
+        }
+
+        //...............................................................................
+        private void treeView_BtnEdit(object sender, RoutedEventArgs e) {
+        }
+
+        //...............................................................................
         private void MenuItem_Help(object sender, RoutedEventArgs e) {
             Dlg_About Dlg = new Dlg_About();
             Dlg.Owner = this;
             Dlg.ShowDialog();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e) {
+        //...............................................................................
+        private void MenuItem_LoadOldIni(object sender, RoutedEventArgs e) {
             Dlg_ConvertOldLoader Dlg = new Dlg_ConvertOldLoader();
             Dlg.Owner = this;
             Dlg.ShowDialog();
+        }
+
+        //...............................................................................
+        private void SomeCommand(object sender, RoutedEventArgs e) {
+            System.Windows.MessageBox.Show("Esc");
+
         }
     }
 }

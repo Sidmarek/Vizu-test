@@ -6,17 +6,20 @@ using System.Threading.Tasks;
 using IniParser;
 using IniParser.Model;
 using System.Net;
+using System.Xml;
+using System.ComponentModel;
+using System.Windows;
 
 namespace ExN2 {
 
     [Flags]
-    enum Priznaky : Byte {
+    public enum Priznaky : Byte {
         Prvni = 1,
         Druha = 2,
         Treti = 4
     }
 
-    enum tEventItemType:int {
+    public enum tEventItemType :int {
         itInt8,
         itInt16,
         itInt32,
@@ -25,19 +28,19 @@ namespace ExN2 {
         N_tEventItemType    // pocet hodnot typu
     };
 
-    enum tN4T_version:int {
+    public enum tN4T_version:int {
         n4t_undef,  // nedovolena hodnota
         n4t_ver001, // 0.01 - to jeste nemelo hlavicku, prvni byl rovnou iCommand
         n4t_ver100, // 1.00 - tohle posilalo v tele zpravy jako prvni polozku i cislo evt-bufferu
         n4t_ver200  // 2.00 - tohle uz neposila cislo evt-bufferu
     };
 
-    class EventDef {
+    public class EventDef {
         static public int[] ItemTypeLen = new int[] { 1, 2, 4, 10, 0 };
     };
 
     //======= popis jedne polozky v sablone udalosti =======
-    class cCfgEventItem {
+    public class cCfgEventItem {
 
         public String sName;      // item name = field name in SQL-table
         public tEventItemType Type;       // type definuje offset v datech a zaroven typ pole v SQL-tabulce
@@ -65,7 +68,7 @@ namespace ExN2 {
     }
 
     // ======= sablona cele udalosti, je to array polozek =======
-    class cCfgEventTemplate {
+    public class cCfgEventTemplate {
         public int iTaskIdx;       // pro chybove hlasky
         List<cCfgEventItem> Items;          // polozky
 
@@ -80,10 +83,49 @@ namespace ExN2 {
         }
     }
 
+
+    public class CfgTreeLoader_VM1 : INotifyPropertyChanged {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private String _LeafName;       // textual name of item
+
+        //.......................................................................................
+        public CfgTreeLoader_VM1() {
+            _LeafName = "Loader1";
+        }
+
+        //.......................................................................................
+        public string LeafName {
+            get { return _LeafName; }
+            set {
+                _LeafName = value;
+                OnPropertyChanged("LeafName");
+            }
+        }
+
+        //.......................................................................................
+        public string ImageUri {
+            get {
+                return "pack://application:,,,/resources/" + "ico_loader.png";
+            }
+        }
+
+        //.......................................................................................
+        protected virtual void OnPropertyChanged(string propertyName) {
+            //PropertyChangedEventHandler handler = PropertyChanged;
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+
     //-------------------------------------------------------------------
     //  parametry jednoho loaderu, krome sablon udalosti - ty jsou v poli
     //-------------------------------------------------------------------
-    class CfgEventLoader {
+    public class CfgEventLoader : ProcCfgBase {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private String _LeafName;       // textual name of item
+
         // pripojeni k databazi PostgreSQL
         public string DB_ConnectString;
         public string DB_TableName;
@@ -111,6 +153,27 @@ namespace ExN2 {
         // perioda a offset pro serizovani casu PLC
         int iAdjustTimePeriod_Sec;
         int iAdjustTimeOffset_Sec;
+
+        //...........................................................................
+        public CfgEventLoader() : base("Loader", "ico_loader.png") {
+        }
+
+
+        //...........................................................................
+        public void SaveToXml(String FullName) {
+            XmlDocument Doc = new XmlDocument();
+            XmlDeclaration deklarace = Doc.CreateXmlDeclaration("1.0", "utf-8", null);
+            Doc.AppendChild(deklarace);
+            XmlElement koren = Doc.CreateElement("loaders");
+
+            XmlElement elm = Doc.CreateElement("taskProps");
+            elm.SetAttribute("run", "Yes");
+            elm.SetAttribute("taskName", "Dubravica");
+            koren.AppendChild(elm);
+
+            Doc.AppendChild(koren);
+            Doc.Save(FullName);
+        }
 
         //...........................................................................
         // z INI souboru nacte konfiguraci jednoho loaderu do dodane struktury pCfg.
@@ -212,10 +275,18 @@ namespace ExN2 {
             }*/
             return true;
         }
+
+        //...........................................................................
+        public bool Edit(Window Parent) {   // vraci true, pokud bylo stisknuto OK
+            Dlg_LoaderProps Dlg = new Dlg_LoaderProps();
+            Dlg.Owner = Parent;
+            return (bool)Dlg.ShowDialog();
+        }
+
     }
 
 
-        class Loader {
+    class Loader {
             //tCfgEventLoader Cfg;
 
 

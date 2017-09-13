@@ -1,22 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace ExN2 {
 
     // config tree view: ViewModel of internal node = node
-    public class CfgTreeNode_VM : INotifyPropertyChanged {
+    public class CfgTreeNode_Archivers_VM : INotifyPropertyChanged {
         public event PropertyChangedEventHandler PropertyChanged;
 
         private String _NodeName;      // textual name of item
         private String _ImageFile;     // bitmap file name without path
 
-        CfgTreeLeaf_VM[] _LeafList;
+        List<CfgTreeArchiver_VM> _LeafList = new List<CfgTreeArchiver_VM>();
 
         //.......................................................................................
-        public CfgTreeNode_VM(String NodeName, String ImageFile, CfgTreeLeaf_VM[] LeafList) {
+        public CfgTreeNode_Archivers_VM(String NodeName, String ImageFile) {
             _NodeName = NodeName;
             _ImageFile = ImageFile;
-            _LeafList = LeafList;
+        }
+
+        //.......................................................................................
+        public void AddLeaf(CfgTreeArchiver_VM leaf) {
+            _LeafList.Add(leaf);
         }
 
         //.......................................................................................
@@ -35,7 +40,7 @@ namespace ExN2 {
         }
 
         //.......................................................................................
-        public CfgTreeLeaf_VM[] LeafList {
+        public List<CfgTreeArchiver_VM> LeafList {
             get { return _LeafList; }
         }
 

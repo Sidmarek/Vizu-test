@@ -61,14 +61,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Loader\CfgTreeNode_Loaders_VM.cs" />
     <Compile Include="Common\Common.cs" />
-    <Compile Include="Threads\ProcBase.cs" />
-    <Compile Include="Threads\proc_Loader.cs" />
+    <Compile Include="Loader\proc_Loader.cs" />
     <Compile Include="Wnds\Dlg_ConvertOldLoader.xaml.cs">
       <DependentUpon>Dlg_ConvertOldLoader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wnds\Dlg_About.xaml.cs">
       <DependentUpon>Dlg_About.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Wnds\Dlg_LoaderProps.xaml.cs">
+      <DependentUpon>Dlg_LoaderProps.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -78,7 +81,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\CfgTreeLeaf_VM.cs" />
+    <Compile Include="Common\CfgTreeArchiver_VM.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -91,9 +94,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Wnds\Dlg_LoaderProps.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\CfgTreeNode_VM.cs" />
+    <Compile Include="Common\CfgTreeNode_Archivers_VM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -111,7 +118,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -122,11 +128,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\archiver.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\node.png" />
-    <Resource Include="Resources\node2.png" />
+    <Resource Include="Resources\ico_loader.png" />
     <Resource Include="Resources\root.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Threads\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
