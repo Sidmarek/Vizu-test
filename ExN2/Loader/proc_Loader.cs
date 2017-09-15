@@ -225,6 +225,10 @@ namespace ExN2 {
             bool bAfterEventStart = false;
             cCfgEventItem eventItemInstance = null;
             N4T_version = tN4T_version.n4t_undef;
+            string[] partsVal = null;
+            string[] partsLen = null;
+            string[] address = null;
+            int[] timeAdjust = null;
 
             foreach (string line in lines)
             {
@@ -280,75 +284,78 @@ namespace ExN2 {
                     else if (line.Contains("=") && bAfterEventStart == false)
                     {
                         string[] splitedLine = line.Split('=');
-                        switch(splitedLine[0])
+                        string keyword = splitedLine[0];
+
+                        if(keyword.Contains("Run"))
+                            bRun = splitedLine[1].Equals("Yes");
+                            
+                        if(keyword.Contains("TaskName"))
+                            sTaskName = splitedLine[1];
+                            
+                        if(keyword.Contains("ConnectString"))
+                            DB_ConnectString = line.Substring(line.IndexOf("\"")+1, (line.Length - line.IndexOf("\"")-2));
+                            
+                        if(keyword.Contains("DB_TableName"))
+                            DB_TableName = splitedLine[1];
+                            
+                        if(keyword.Contains("SysTableName"))
+                            DB_SysTableName = splitedLine[1];
+
+                        if (keyword.Contains("SocketLocal"))
                         {
-                            case string s when splitedLine[0].Contains("Run"):
-                                bRun = splitedLine[1].Equals("Yes");
-                                break;
-                            case string s when splitedLine[0].Contains("TaskName"):
-                                sTaskName = splitedLine[1];
-                                break;
-                            case string s when splitedLine[0].Contains("ConnectString"):
-                                DB_ConnectString = line.Substring(line.IndexOf("\"")+1, (line.Length - line.IndexOf("\"")-2));
-                                break;
-                            case string s when splitedLine[0].Contains("DB_TableName"):
-                                DB_TableName = splitedLine[1];
-                                break;
-                            case string s when splitedLine[0].Contains("SysTableName"):
-                                DB_SysTableName = splitedLine[1];
-                                break;
-                            case string s when splitedLine[0].Contains("SocketLocal"):
-                                string[] address =  splitedLine[1].Split(':');
-                                if (address[0] == "")
-                                  address[0] = "127.0.0.1";
-                                SocketLocal = address[0] + address[1];
-                                //SocketLocal = new IPEndPoint(IPAddress.Parse(address[0]), int.Parse(address[1]));
-                                break;
-                            case string s when splitedLine[0].Contains("SocketRemote"):
-                                address = splitedLine[1].Split(':');
-                                if (address[0] == "")
-                                  address[0] = "127.0.0.1";
-                                SocketRemote = address[0] + address[1];
-                                //SocketRemote = new IPEndPoint(IPAddress.Parse(address[0]), int.Parse(address[1]));
-                                break;
-                            case string s when splitedLine[0].Contains("ReceiveTimeoutMs"):
-                                iRcvTimeoutMs = int.Parse(splitedLine[1]);
-                                break;
-                            case string s when splitedLine[0].Contains("IntelOrder"):
-                                bIntelOrder = splitedLine[1].Equals("1");
-                                break;
-                            case string s when splitedLine[0].Contains("N4T_version"):
-                                N4T_version = (tN4T_version) (int)double.Parse(splitedLine[1]);
-                                break;
-                            case string s when splitedLine[0].Contains("LastPtrIsFreePtr"):
-                                bLastPtrIsFreePtr = splitedLine[1].Equals("1");
-                                break;
-                            case string s when splitedLine[0].Contains("EventBodyLenBytes"):                                
-                                iEventBodyLenBytes = int.Parse(splitedLine[1]);
-                                break;
-                            case string s when splitedLine[0].Contains("TypeFieldByteOffs"):
-                                iTypeFieldByteOffs = int.Parse(splitedLine[1]);
-                                break;
-                            case string s when splitedLine[0].Contains("RecnoFieldByteOffs"):
-                                iRecnoFieldByteOffs = int.Parse(splitedLine[1]);
-                                break;
-                            case string s when splitedLine[0].Contains("Event_begin"):
-                                if (EventItemList == null)
-                                    EventItemList = new List<cCfgEventItem>();
-                                eventItemInstance = new cCfgEventItem();
-                                if (eventItemInstance.EventTypesList == null)
-                                    eventItemInstance.EventTypesList = new List<int>();
-                                eventItemInstance.EventTypesList = splitedLine[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToList(); // that wil trim the every number and give it into the list (EventTypesList)
-                                bAfterEventStart = true;
-                                break;
-                            case string s when splitedLine[0].Contains("AdjustPlcTime_Sec"):
-                                int[] timeAdjust = splitedLine[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToArray();
-                                iAdjustTimePeriod_Sec = timeAdjust[0];
-                                iAdjustTimeOffset_Sec = timeAdjust[1];
-                                break;
+                            address = splitedLine[1].Split(':');
+                            if (address[0] == "")
+                                address[0] = "127.0.0.1";
+                            SocketLocal = address[0] + address[1];
+                            //SocketLocal = new IPEndPoint(IPAddress.Parse(address[0]), int.Parse(address[1]));
+                        }
+                        if (keyword.Contains("SocketRemote"))
+                        {
+                            address = splitedLine[1].Split(':');
+                            if (address[0] == "")
+                                address[0] = "127.0.0.1";
+                            SocketRemote = address[0] + address[1];
+                            //SocketRemote = new IPEndPoint(IPAddress.Parse(address[0]), int.Parse(address[1]));
+                        }
+                        if(keyword.Contains("ReceiveTimeoutMs"))
+                            iRcvTimeoutMs = int.Parse(splitedLine[1]);
+                            
+                        if(keyword.Contains("IntelOrder"))
+                            bIntelOrder = splitedLine[1].Equals("1");
+                            
+                        if(keyword.Contains("N4T_version"))
+                            N4T_version = (tN4T_version) (int)double.Parse(splitedLine[1]);
+                            
+                        if(keyword.Contains("LastPtrIsFreePtr"))
+                            bLastPtrIsFreePtr = splitedLine[1].Equals("1");
+                            
+                        if(keyword.Contains("EventBodyLenBytes"))                                
+                            iEventBodyLenBytes = int.Parse(splitedLine[1]);
+                            
+                        if(keyword.Contains("TypeFieldByteOffs"))
+                            iTypeFieldByteOffs = int.Parse(splitedLine[1]);
+                            
+                        if(keyword.Contains("RecnoFieldByteOffs"))
+                            iRecnoFieldByteOffs = int.Parse(splitedLine[1]);
+
+                        if (keyword.Contains("Event_begin"))
+                        {
+                            if (EventItemList == null)
+                                EventItemList = new List<cCfgEventItem>();
+                            eventItemInstance = new cCfgEventItem();
+                            if (eventItemInstance.EventTypesList == null)
+                                eventItemInstance.EventTypesList = new List<int>();
+                            eventItemInstance.EventTypesList = splitedLine[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToList(); // that wil trim the every number and give it into the list (EventTypesList)
+                            bAfterEventStart = true;
+                        }
+                        if (keyword.Contains("AdjustPlcTime_Sec"))
+                        {
+                            timeAdjust = splitedLine[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToArray();
+                            iAdjustTimePeriod_Sec = timeAdjust[0];
+                            iAdjustTimeOffset_Sec = timeAdjust[1];
                         }
                     }
-                    else
+                        else
                     {
                         if (!line.Contains("Event_end"))
                         {
@@ -357,44 +364,43 @@ namespace ExN2 {
                                 eventItemInstance = new cCfgEventItem();
                             foreach (string eventAttribute in splittedEventLine)
                             {
-                                switch(eventAttribute)
+                                //coef i dont know how it should be look like
+                                if(eventAttribute.Contains("int8"))
+                                    eventItemInstance.Type = tEventItemType.itInt8;
+                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+
+                                if(eventAttribute.Contains("int16"))
+                                    eventItemInstance.Type = tEventItemType.itInt8;
+                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    
+                                if(eventAttribute.Contains("int32"))
+                                    eventItemInstance.Type = tEventItemType.itInt32;
+                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    
+                                if(eventAttribute.Contains("s7str"))
+                                    eventItemInstance.Type = tEventItemType.itVarChar;
+                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    
+                                if(eventAttribute.Contains("const"))
+                                    eventItemInstance.Type = tEventItemType.itIntConst;
+                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    
+                                if(eventAttribute.Contains("noStore"))
+                                    eventItemInstance.bStore = false;
+
+                                if (eventAttribute.Contains("len="))
                                 {
-                                    //coef i dont know how it should be look like
-                                    case string s when eventAttribute.Contains("int8"):
-                                        eventItemInstance.Type = tEventItemType.itInt8;
-                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
-                                        break;
-                                    case string s when eventAttribute.Contains("int16"):
-                                        eventItemInstance.Type = tEventItemType.itInt8;
-                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
-                                        break;
-                                    case string s when eventAttribute.Contains("int32"):
-                                        eventItemInstance.Type = tEventItemType.itInt32;
-                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
-                                        break;
-                                    case string s when eventAttribute.Contains("s7str"):
-                                        eventItemInstance.Type = tEventItemType.itVarChar;
-                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
-                                        break;
-                                    case string s when eventAttribute.Contains("const"):
-                                        eventItemInstance.Type = tEventItemType.itIntConst;
-                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
-                                        break;
-                                    case string s when eventAttribute.Contains("noStore"):
-                                        eventItemInstance.bStore = false;
-                                        break;
-                                    case string s when eventAttribute.Contains("len="):
-                                        string[] partsLen = eventAttribute.Split('=');
-                                        eventItemInstance.iConstValue = int.Parse(partsLen[1]);
-                                        break;
-                                    case string s when eventAttribute.Contains("value="):
-                                        string[] partsVal = eventAttribute.Split('=');
-                                        eventItemInstance.iConstValue = int.Parse(partsVal[1]);
-                                        break;
-                                    default:
-                                        eventItemInstance.sName = eventAttribute;
-                                        break;
+                                    partsLen = eventAttribute.Split('=');
+                                    eventItemInstance.iConstValue = int.Parse(partsLen[1]);
                                 }
+                                if (eventAttribute.Contains("value="))
+                                {
+                                    partsVal = eventAttribute.Split('=');
+                                    eventItemInstance.iConstValue = int.Parse(partsVal[1]);
+                                }
+                                if(eventAttribute.Contains("int8") || eventAttribute.Contains("int16") || eventAttribute.Contains("int32") || eventAttribute.Contains("s7str") || eventAttribute.Contains("const") || eventAttribute.Contains("noStore") || eventAttribute.Contains("value="))
+                                    eventItemInstance.sName = eventAttribute;
+                                    
                             }
                             EventItemList.Add(eventItemInstance);
                         }
