@@ -25,7 +25,8 @@ namespace ExN2 {
         private void btn_Convert_Click(object sender, RoutedEventArgs e) {
             CfgEventLoader Ldr = new CfgEventLoader();
           
-            Ldr.LoadFromOldIni(textBox_SrcFile.Text);
+            var CLC =  Ldr.LoadFromOldIni(textBox_SrcFile.Text);
+            Ldr.SaveToXml(textBox_DstFile.Text, CLC);
         }
 
         private void btn_SelSrcFile_Click(object sender, RoutedEventArgs e) {

@@ -9,6 +9,8 @@ using System.Net;
 using System.Xml;
 using System.ComponentModel;
 using System.Windows;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace ExN2 {
 
@@ -29,26 +31,28 @@ namespace ExN2 {
     };
 
     public enum tN4T_version:int {
-        n4t_undef,  // nedovolena hodnota
+        n4t_undef = -1,  // nedovolena hodnota
         n4t_ver001, // 0.01 - to jeste nemelo hlavicku, prvni byl rovnou iCommand
         n4t_ver100, // 1.00 - tohle posilalo v tele zpravy jako prvni polozku i cislo evt-bufferu
         n4t_ver200  // 2.00 - tohle uz neposila cislo evt-bufferu
     };
 
+    
     public class EventDef {
-        static public int[] ItemTypeLen = new int[] { 1, 2, 4, 10, 0 };
+        static public int[] ItemTypeLen = new int[] { 1, 2, 4, 10, 0 }; 
     };
 
     //======= popis jedne polozky v sablone udalosti =======
     public class cCfgEventItem {
 
+        public List<int> EventTypesList;
         public String sName;      // item name = field name in SQL-table
         public tEventItemType Type;       // type definuje offset v datech a zaroven typ pole v SQL-tabulce
         public bool bStore;     // false = neukladat do DB, polozka pouze posouva offset v udalosti
         public int iLenBytes;  // delka dat v bajtech
         public int iConstValue;// pro pseudopole - konstantni hodnota
         public double rCoef;      // nasobitel hodnoty pred ulozenim do DB
-
+        public cCfgEventItem() {}
         public cCfgEventItem(String qsName, tEventItemType qType, bool qbNoStore, int qiConstValue, double qrCoef) {
 
             // pokud jmeno zacina "dummy", nebude se ukladat do DB
@@ -82,7 +86,6 @@ namespace ExN2 {
             Items.Add(new cCfgEventItem(sName, aType, bNoStore, iConstValue, rCoef));
         }
     }
-
 
     public class CfgTreeLoader_VM1 : INotifyPropertyChanged {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -118,13 +121,20 @@ namespace ExN2 {
         }
     }
 
-
+    /// <summary>
+    /// Only data of all loaders configs 
+    /// </summary>
+    public class CfgLoaderConfig {
+        public List<CfgEventLoader> CfgEventLoaderList;
+    }
     //-------------------------------------------------------------------
     //  parametry jednoho loaderu, krome sablon udalosti - ty jsou v poli
     //-------------------------------------------------------------------
     public class CfgEventLoader : ProcCfgBase {
         public event PropertyChangedEventHandler PropertyChanged;
         private String _LeafName;       // textual name of item
+        //enable 
+        public bool bRun;
 
         // pripojeni k databazi PostgreSQL
         public string DB_ConnectString;
@@ -132,8 +142,8 @@ namespace ExN2 {
         public string DB_SysTableName;
 
         // parametry komunikace s PLC
-        public IPEndPoint SocketLocal;
-        public IPEndPoint SocketRemote;
+        public string SocketLocal;
+        public string SocketRemote;
 
         // pro kontrolu definujem delku datoveho tela udalosti
         public int iEventBodyLenBytes;
@@ -154,13 +164,16 @@ namespace ExN2 {
         int iAdjustTimePeriod_Sec;
         int iAdjustTimeOffset_Sec;
 
+        public List<cCfgEventItem> EventItemList;
+
         //...........................................................................
         public CfgEventLoader() : base("Loader", "ico_loader.png") {
         }
 
 
         //...........................................................................
-        public void SaveToXml(String FullName) {
+        public void SaveToXml(String FullName, CfgLoaderConfig CLC) {
+            /*
             XmlDocument Doc = new XmlDocument();
             XmlDeclaration deklarace = Doc.CreateXmlDeclaration("1.0", "utf-8", null);
             Doc.AppendChild(deklarace);
@@ -173,13 +186,26 @@ namespace ExN2 {
 
             Doc.AppendChild(koren);
             Doc.Save(FullName);
+            */
+            
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(CfgLoaderConfig));            
+            string xml = "";
+
+            using (var sww = new StreamWriter(FullName))
+            {
+                using (XmlWriter writer = XmlWriter.Create(sww))
+                {
+                    xsSubmit.Serialize(writer,CLC);
+                }
+            }
         }
 
         //...........................................................................
         // z INI souboru nacte konfiguraci jednoho loaderu do dodane struktury pCfg.
         // Jednotlivy loader je v INI identifikovan cislem (zero based).
-        public bool LoadFromOldIni(String FullName) {
-
+        public CfgLoaderConfig LoadFromOldIni(String FullName) {
+            #region test
+            /*
             Priznaky PP = 0;
             PP = Priznaky.Prvni;
             PP |= Priznaky.Druha;
@@ -191,12 +217,217 @@ namespace ExN2 {
             String S = PP.ToString();
 
             Byte B = (Byte)PP;
+            */
+            #endregion
+            List<string> lines =  System.IO.File.ReadAllLines(FullName).Select(p => p.Trim()).ToList();
+            CfgLoaderConfig CLC = new CfgLoaderConfig();
+            CLC.CfgEventLoaderList = new List<CfgEventLoader>();
+            bool bAfterEventStart = false;
+            cCfgEventItem eventItemInstance = null;
+            N4T_version = tN4T_version.n4t_undef;
+
+            foreach (string line in lines)
+            {
+                if (line != "") {
+                    if (line.Contains("["))
+                    {
+                        CfgEventLoader cfgEventLoader = new CfgEventLoader();
+
+                        cfgEventLoader.bRun = bRun;
+                        bRun = false;
+                        cfgEventLoader.sTaskName = sTaskName;
+                        sTaskName = null;
+                        cfgEventLoader.DB_ConnectString = DB_ConnectString;
+                        DB_ConnectString = null;
+                        cfgEventLoader.DB_TableName = DB_TableName;
+                        DB_TableName = null;
+                        cfgEventLoader.DB_SysTableName = DB_SysTableName;
+                        DB_SysTableName = null;
+                        cfgEventLoader.SocketLocal = SocketLocal;
+                        SocketLocal = null;
+                        cfgEventLoader.SocketRemote = SocketRemote;
+                        SocketRemote = null;
+                        cfgEventLoader.iRcvTimeoutMs = iRcvTimeoutMs;
+                        iRcvTimeoutMs = 0;
+                        cfgEventLoader.bIntelOrder = bIntelOrder;
+                        bIntelOrder = false;
+                        cfgEventLoader.N4T_version = N4T_version;
+                        N4T_version = tN4T_version.n4t_undef;
+                        cfgEventLoader.bLastPtrIsFreePtr = bLastPtrIsFreePtr;
+                        bLastPtrIsFreePtr = false;
+                        cfgEventLoader.iEventBodyLenBytes = iEventBodyLenBytes;
+                        iEventBodyLenBytes = 0;
+                        cfgEventLoader.iTypeFieldByteOffs = iTypeFieldByteOffs;
+                        iTypeFieldByteOffs = 0;
+                        cfgEventLoader.EventItemList = EventItemList;
+                        EventItemList = null;
+                        cfgEventLoader.iAdjustTimePeriod_Sec = iAdjustTimePeriod_Sec;
+                        iAdjustTimePeriod_Sec = 0;
+                        cfgEventLoader.iAdjustTimeOffset_Sec = iAdjustTimeOffset_Sec;
+                        iAdjustTimeOffset_Sec = 0;
 
 
+                        string name = line.Replace("[", "");
+                        name = name.Replace("]", "");
+                        if (name != "Common")
+                        {
+                            _LeafName = name;
+                            if(_LeafName != null)
+                                CLC.CfgEventLoaderList.Add(cfgEventLoader);
+                            cfgEventLoader._LeafName = _LeafName;                            
+                        }
+                    }
+                    else if (line.Contains("=") && bAfterEventStart == false)
+                    {
+                        string[] splitedLine = line.Split('=');
+                        switch(splitedLine[0])
+                        {
+                            case string s when splitedLine[0].Contains("Run"):
+                                bRun = splitedLine[1].Equals("Yes");
+                                break;
+                            case string s when splitedLine[0].Contains("TaskName"):
+                                sTaskName = splitedLine[1];
+                                break;
+                            case string s when splitedLine[0].Contains("ConnectString"):
+                                DB_ConnectString = line.Substring(line.IndexOf("\"")+1, (line.Length - line.IndexOf("\"")-2));
+                                break;
+                            case string s when splitedLine[0].Contains("DB_TableName"):
+                                DB_TableName = splitedLine[1];
+                                break;
+                            case string s when splitedLine[0].Contains("SysTableName"):
+                                DB_SysTableName = splitedLine[1];
+                                break;
+                            case string s when splitedLine[0].Contains("SocketLocal"):
+                                string[] address =  splitedLine[1].Split(':');
+                                if (address[0] == "")
+                                  address[0] = "127.0.0.1";
+                                SocketLocal = address[0] + address[1];
+                                //SocketLocal = new IPEndPoint(IPAddress.Parse(address[0]), int.Parse(address[1]));
+                                break;
+                            case string s when splitedLine[0].Contains("SocketRemote"):
+                                address = splitedLine[1].Split(':');
+                                if (address[0] == "")
+                                  address[0] = "127.0.0.1";
+                                SocketRemote = address[0] + address[1];
+                                //SocketRemote = new IPEndPoint(IPAddress.Parse(address[0]), int.Parse(address[1]));
+                                break;
+                            case string s when splitedLine[0].Contains("ReceiveTimeoutMs"):
+                                iRcvTimeoutMs = int.Parse(splitedLine[1]);
+                                break;
+                            case string s when splitedLine[0].Contains("IntelOrder"):
+                                bIntelOrder = splitedLine[1].Equals("1");
+                                break;
+                            case string s when splitedLine[0].Contains("N4T_version"):
+                                N4T_version = (tN4T_version) (int)double.Parse(splitedLine[1]);
+                                break;
+                            case string s when splitedLine[0].Contains("LastPtrIsFreePtr"):
+                                bLastPtrIsFreePtr = splitedLine[1].Equals("1");
+                                break;
+                            case string s when splitedLine[0].Contains("EventBodyLenBytes"):                                
+                                iEventBodyLenBytes = int.Parse(splitedLine[1]);
+                                break;
+                            case string s when splitedLine[0].Contains("TypeFieldByteOffs"):
+                                iTypeFieldByteOffs = int.Parse(splitedLine[1]);
+                                break;
+                            case string s when splitedLine[0].Contains("RecnoFieldByteOffs"):
+                                iRecnoFieldByteOffs = int.Parse(splitedLine[1]);
+                                break;
+                            case string s when splitedLine[0].Contains("Event_begin"):
+                                if (EventItemList == null)
+                                    EventItemList = new List<cCfgEventItem>();
+                                eventItemInstance = new cCfgEventItem();
+                                if (eventItemInstance.EventTypesList == null)
+                                    eventItemInstance.EventTypesList = new List<int>();
+                                eventItemInstance.EventTypesList = splitedLine[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToList(); // that wil trim the every number and give it into the list (EventTypesList)
+                                bAfterEventStart = true;
+                                break;
+                            case string s when splitedLine[0].Contains("AdjustPlcTime_Sec"):
+                                int[] timeAdjust = splitedLine[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToArray();
+                                iAdjustTimePeriod_Sec = timeAdjust[0];
+                                iAdjustTimeOffset_Sec = timeAdjust[1];
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if (!line.Contains("Event_end"))
+                        {
+                            List<string> splittedEventLine = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToList();
+                            if (eventItemInstance == null)
+                                eventItemInstance = new cCfgEventItem();
+                            foreach (string eventAttribute in splittedEventLine)
+                            {
+                                switch(eventAttribute)
+                                {
+                                    //coef i dont know how it should be look like
+                                    case string s when eventAttribute.Contains("int8"):
+                                        eventItemInstance.Type = tEventItemType.itInt8;
+                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                        break;
+                                    case string s when eventAttribute.Contains("int16"):
+                                        eventItemInstance.Type = tEventItemType.itInt8;
+                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                        break;
+                                    case string s when eventAttribute.Contains("int32"):
+                                        eventItemInstance.Type = tEventItemType.itInt32;
+                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                        break;
+                                    case string s when eventAttribute.Contains("s7str"):
+                                        eventItemInstance.Type = tEventItemType.itVarChar;
+                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                        break;
+                                    case string s when eventAttribute.Contains("const"):
+                                        eventItemInstance.Type = tEventItemType.itIntConst;
+                                        eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                        break;
+                                    case string s when eventAttribute.Contains("noStore"):
+                                        eventItemInstance.bStore = false;
+                                        break;
+                                    case string s when eventAttribute.Contains("len="):
+                                        string[] partsLen = eventAttribute.Split('=');
+                                        eventItemInstance.iConstValue = int.Parse(partsLen[1]);
+                                        break;
+                                    case string s when eventAttribute.Contains("value="):
+                                        string[] partsVal = eventAttribute.Split('=');
+                                        eventItemInstance.iConstValue = int.Parse(partsVal[1]);
+                                        break;
+                                    default:
+                                        eventItemInstance.sName = eventAttribute;
+                                        break;
+                                }
+                            }
+                            EventItemList.Add(eventItemInstance);
+                        }
+                        else
+                        {
+                            bAfterEventStart = false;
+                        }                       
+                    }
+                }
+            }
+            CfgEventLoader lastEventLoader = new CfgEventLoader();
 
-            FileIniDataParser Parser = new FileIniDataParser();
-            IniData ini = Parser.ReadFile(FullName);
-
+            lastEventLoader.bRun = bRun;
+            lastEventLoader.sTaskName = sTaskName;
+            lastEventLoader.DB_ConnectString = DB_ConnectString;
+            lastEventLoader.DB_TableName = DB_TableName;
+            lastEventLoader.DB_SysTableName = DB_SysTableName;
+            lastEventLoader.SocketLocal = SocketLocal;
+            lastEventLoader.SocketRemote = SocketRemote;
+            lastEventLoader.iRcvTimeoutMs = iRcvTimeoutMs;
+            lastEventLoader.bIntelOrder = bIntelOrder;
+            lastEventLoader.N4T_version = N4T_version;
+            lastEventLoader.bLastPtrIsFreePtr = bLastPtrIsFreePtr;
+            lastEventLoader.iEventBodyLenBytes = iEventBodyLenBytes;
+            lastEventLoader.iTypeFieldByteOffs = iTypeFieldByteOffs;
+            lastEventLoader.EventItemList = EventItemList;
+            lastEventLoader.iAdjustTimePeriod_Sec = iAdjustTimePeriod_Sec;
+            lastEventLoader.iAdjustTimeOffset_Sec = iAdjustTimeOffset_Sec;
+            
+            CLC.CfgEventLoaderList.Add(lastEventLoader);
+            #region old
+            //IniData ini = Parser.ReadFile(FullName);
+            /*
             sTaskName = ini["Main"]["TaskName"];
 
             DB_ConnectString = ini["Main"]["DB_ConnectString"];// retezec je navic v uvozovkach
@@ -206,15 +437,15 @@ namespace ExN2 {
             string[] Sock = ini["Main"]["UDPSocketLocal"].Split(':');
             if (Sock[0] == "") 
                 Sock[0] = "127.0.0.1";
-            SocketLocal = new IPEndPoint(System.Net.IPAddress.Parse(Sock[0]), Int32.Parse(Sock[1]));
+            SocketLocal = new IPEndPoint(IPAddress.Parse(Sock[0]), Int32.Parse(Sock[1]));
 
             Sock = ini["Main"]["UDPSocketRemote"].Split(':');
             if (Sock[0] == "")
                 Sock[0] = "127.0.0.1";
-            SocketRemote = new IPEndPoint(System.Net.IPAddress.Parse(Sock[0]), Int32.Parse(Sock[1]));
+            SocketRemote = new IPEndPoint(IPAddress.Parse(Sock[0]), Int32.Parse(Sock[1]));
 
             iRcvTimeoutMs = Int32.Parse(ini["Main"]["ReceiveTimeoutMs"]);
-
+            */
             /*
                 else if (stricmp(sKW, "IntelOrder") == 0) {
                     Struc.bIntelOrder = GetAndDelFirstInt(sLine) != 0;
@@ -273,7 +504,8 @@ namespace ExN2 {
                     Struc.iAdjustTimeOffset_Sec = GetAndDelFirstInt(sLine);
                 }
             }*/
-            return true;
+            #endregion           
+            return CLC;
         }
 
         //...........................................................................
