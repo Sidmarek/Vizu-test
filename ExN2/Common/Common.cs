@@ -78,7 +78,7 @@ namespace ExN2 {
         }
 
         //.......................................................................................
-        public string LeafName {
+        public string LeafName{
             get { return _sLeafName; }
             set {
                 _sLeafName = value;
@@ -139,7 +139,9 @@ namespace ExN2 {
         }
 
         //.......................................................................................
+        //public abstract void New(Window Parent);
         public abstract void New(Window Parent);
-
+        public abstract void Edit(object selectedTreeItem, Window Parent);
+        public abstract void Delete (object selectedTreeItem, Window Parent);
     };
 }

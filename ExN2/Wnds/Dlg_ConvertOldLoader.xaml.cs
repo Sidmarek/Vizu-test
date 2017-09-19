@@ -18,6 +18,9 @@ namespace ExN2 {
     /// Interaction logic for Convert_OldLoader.xaml
     /// </summary>
     public partial class Dlg_ConvertOldLoader : Window {
+
+        public CfgLoaderConfig loadersList; 
+
         public Dlg_ConvertOldLoader() {
             InitializeComponent();
         }
@@ -26,6 +29,7 @@ namespace ExN2 {
             CfgEventLoader Ldr = new CfgEventLoader();
           
             var CLC =  Ldr.LoadFromOldIni(textBox_SrcFile.Text);
+            loadersList = CLC;
             Ldr.SaveToXml(textBox_DstFile.Text, CLC);
         }
 

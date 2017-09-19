@@ -65,6 +65,9 @@
     <Compile Include="Loader\CfgTreeNode_Loaders_VM.cs" />
     <Compile Include="Common\Common.cs" />
     <Compile Include="Loader\proc_Loader.cs" />
+    <Compile Include="Wnds\Dlg_AddEvent.xaml.cs">
+      <DependentUpon>Dlg_AddEvent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Wnds\Dlg_ConvertOldLoader.xaml.cs">
       <DependentUpon>Dlg_ConvertOldLoader.xaml</DependentUpon>
     </Compile>
@@ -87,6 +90,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Wnds\Dlg_AddEvent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Wnds\Dlg_ConvertOldLoader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -43,9 +43,7 @@ namespace ExN2 {
     };
 
     //======= popis jedne polozky v sablone udalosti =======
-    public class cCfgEventItem {
-
-        public List<int> EventTypesList;
+    public class cCfgEventItem {        
         public String sName;      // item name = field name in SQL-table
         public tEventItemType Type;       // type definuje offset v datech a zaroven typ pole v SQL-tabulce
         public bool bStore;     // false = neukladat do DB, polozka pouze posouva offset v udalosti
@@ -68,6 +66,10 @@ namespace ExN2 {
                 // deklarovana delka je cela bajtova delka vcetne hlavicky (2 B)
                 iLenBytes = qiConstValue;
             }
+        }
+        public override string ToString()
+        {
+            return sName + "Type: " + Type.ToString() + " Store: " + bStore + " bytesLen: " + iLenBytes + " Value: " + iConstValue + " Coef:" + rCoef;
         }
     }
 
@@ -127,6 +129,23 @@ namespace ExN2 {
     public class CfgLoaderConfig {
         public List<CfgEventLoader> CfgEventLoaderList;
     }
+
+    public class cfgEvent
+    {
+        public List<int> EventTypes;
+        public List<cCfgEventItem> eventLineList;
+
+        public override string ToString()
+        {
+            string returnString = "";
+            foreach (int EventType in EventTypes)
+            {
+                returnString += EventType.ToString() + ", ";
+            }
+            returnString = returnString.Substring(0, returnString.Length - 2);
+            return returnString;
+        }
+    }
     //-------------------------------------------------------------------
     //  parametry jednoho loaderu, krome sablon udalosti - ty jsou v poli
     //-------------------------------------------------------------------
@@ -164,10 +183,10 @@ namespace ExN2 {
         int iAdjustTimePeriod_Sec;
         int iAdjustTimeOffset_Sec;
 
-        public List<cCfgEventItem> EventItemList;
+        public List<cfgEvent> EventsList;
 
         //...........................................................................
-        public CfgEventLoader() : base("Loader", "ico_loader.png") {
+        public CfgEventLoader() : base("Loader", qsIconFile: "ico_loader.png") {
         }
 
 
@@ -223,7 +242,7 @@ namespace ExN2 {
             CfgLoaderConfig CLC = new CfgLoaderConfig();
             CLC.CfgEventLoaderList = new List<CfgEventLoader>();
             bool bAfterEventStart = false;
-            cCfgEventItem eventItemInstance = null;
+            cfgEvent EventInstance = null;
             N4T_version = tN4T_version.n4t_undef;
             string[] partsVal = null;
             string[] partsLen = null;
@@ -263,8 +282,8 @@ namespace ExN2 {
                         iEventBodyLenBytes = 0;
                         cfgEventLoader.iTypeFieldByteOffs = iTypeFieldByteOffs;
                         iTypeFieldByteOffs = 0;
-                        cfgEventLoader.EventItemList = EventItemList;
-                        EventItemList = null;
+                        cfgEventLoader.EventsList = EventsList;
+                        EventsList = null;
                         cfgEventLoader.iAdjustTimePeriod_Sec = iAdjustTimePeriod_Sec;
                         iAdjustTimePeriod_Sec = 0;
                         cfgEventLoader.iAdjustTimeOffset_Sec = iAdjustTimeOffset_Sec;
@@ -275,10 +294,11 @@ namespace ExN2 {
                         name = name.Replace("]", "");
                         if (name != "Common")
                         {
+                            LeafName = name;
                             _LeafName = name;
                             if(_LeafName != null)
                                 CLC.CfgEventLoaderList.Add(cfgEventLoader);
-                            cfgEventLoader._LeafName = _LeafName;                            
+                            cfgEventLoader.LeafName = LeafName;                            
                         }
                     }
                     else if (line.Contains("=") && bAfterEventStart == false)
@@ -340,13 +360,14 @@ namespace ExN2 {
 
                         if (keyword.Contains("Event_begin"))
                         {
-                            if (EventItemList == null)
-                                EventItemList = new List<cCfgEventItem>();
-                            eventItemInstance = new cCfgEventItem();
-                            if (eventItemInstance.EventTypesList == null)
-                                eventItemInstance.EventTypesList = new List<int>();
-                            eventItemInstance.EventTypesList = splitedLine[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToList(); // that wil trim the every number and give it into the list (EventTypesList)
-                            bAfterEventStart = true;
+                            if (EventsList == null)
+                                EventsList = new List<cfgEvent>();
+                            EventInstance = new cfgEvent();
+                            if (EventInstance.EventTypes == null)
+                                EventInstance.EventTypes = new List<int>();
+                            EventInstance.EventTypes = splitedLine[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => int.Parse(p.Trim())).ToList(); // that wil trim the every number and give it into the list (EventTypesList)
+                            if(EventInstance.eventLineList == null)
+                                EventInstance.eventLineList = new List<cCfgEventItem>();
                         }
                         if (keyword.Contains("AdjustPlcTime_Sec"))
                         {
@@ -355,58 +376,61 @@ namespace ExN2 {
                             iAdjustTimeOffset_Sec = timeAdjust[1];
                         }
                     }
-                        else
+                    else
                     {
                         if (!line.Contains("Event_end"))
                         {
                             List<string> splittedEventLine = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToList();
-                            if (eventItemInstance == null)
-                                eventItemInstance = new cCfgEventItem();
+                            cCfgEventItem eventLineInstance = new cCfgEventItem();
+                            if (eventLineInstance == null)
+                                eventLineInstance = new cCfgEventItem();
                             foreach (string eventAttribute in splittedEventLine)
                             {
                                 //coef i dont know how it should be look like
                                 if(eventAttribute.Contains("int8"))
-                                    eventItemInstance.Type = tEventItemType.itInt8;
-                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    eventLineInstance.Type = tEventItemType.itInt8;
+                                    eventLineInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventLineInstance.Type];
 
                                 if(eventAttribute.Contains("int16"))
-                                    eventItemInstance.Type = tEventItemType.itInt8;
-                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    eventLineInstance.Type = tEventItemType.itInt8;
+                                    eventLineInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventLineInstance.Type];
                                     
                                 if(eventAttribute.Contains("int32"))
-                                    eventItemInstance.Type = tEventItemType.itInt32;
-                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    eventLineInstance.Type = tEventItemType.itInt32;
+                                    eventLineInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventLineInstance.Type];
                                     
                                 if(eventAttribute.Contains("s7str"))
-                                    eventItemInstance.Type = tEventItemType.itVarChar;
-                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    eventLineInstance.Type = tEventItemType.itVarChar;
+                                    eventLineInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventLineInstance.Type];
                                     
                                 if(eventAttribute.Contains("const"))
-                                    eventItemInstance.Type = tEventItemType.itIntConst;
-                                    eventItemInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventItemInstance.Type];
+                                    eventLineInstance.Type = tEventItemType.itIntConst;
+                                    eventLineInstance.iLenBytes = EventDef.ItemTypeLen[(int)eventLineInstance.Type];
                                     
                                 if(eventAttribute.Contains("noStore"))
-                                    eventItemInstance.bStore = false;
+                                    eventLineInstance.bStore = false;
 
                                 if (eventAttribute.Contains("len="))
                                 {
                                     partsLen = eventAttribute.Split('=');
-                                    eventItemInstance.iConstValue = int.Parse(partsLen[1]);
+                                    eventLineInstance.iConstValue = int.Parse(partsLen[1]);
                                 }
                                 if (eventAttribute.Contains("value="))
                                 {
                                     partsVal = eventAttribute.Split('=');
-                                    eventItemInstance.iConstValue = int.Parse(partsVal[1]);
+                                    eventLineInstance.iConstValue = int.Parse(partsVal[1]);
                                 }
-                                if(eventAttribute.Contains("int8") || eventAttribute.Contains("int16") || eventAttribute.Contains("int32") || eventAttribute.Contains("s7str") || eventAttribute.Contains("const") || eventAttribute.Contains("noStore") || eventAttribute.Contains("value="))
-                                    eventItemInstance.sName = eventAttribute;
+                                if(!(eventAttribute.Contains("int8") || eventAttribute.Contains("int16") || eventAttribute.Contains("int32") || eventAttribute.Contains("s7str") || 
+                                    eventAttribute.Contains("const") || eventAttribute.Contains("noStore") || eventAttribute.Contains("value=")))
+                                    eventLineInstance.sName = eventAttribute;
                                     
                             }
-                            EventItemList.Add(eventItemInstance);
+                            EventInstance.eventLineList.Add(eventLineInstance);
                         }
                         else
                         {
-                            bAfterEventStart = false;
+                            EventsList.Add(EventInstance);
+                            EventInstance = null;
                         }                       
                     }
                 }
@@ -426,7 +450,7 @@ namespace ExN2 {
             lastEventLoader.bLastPtrIsFreePtr = bLastPtrIsFreePtr;
             lastEventLoader.iEventBodyLenBytes = iEventBodyLenBytes;
             lastEventLoader.iTypeFieldByteOffs = iTypeFieldByteOffs;
-            lastEventLoader.EventItemList = EventItemList;
+            lastEventLoader.EventsList = EventsList;
             lastEventLoader.iAdjustTimePeriod_Sec = iAdjustTimePeriod_Sec;
             lastEventLoader.iAdjustTimeOffset_Sec = iAdjustTimeOffset_Sec;
             
@@ -515,12 +539,61 @@ namespace ExN2 {
         }
 
         //...........................................................................
-        public bool Edit(Window Parent) {   // vraci true, pokud bylo stisknuto OK
+        public bool New(Window Parent) {   // vraci true, pokud bylo stisknuto OK
             Dlg_LoaderProps Dlg = new Dlg_LoaderProps();
             Dlg.Owner = Parent;
             return (bool)Dlg.ShowDialog();
         }
+        public CfgEventLoader Edit(CfgEventLoader eventLoader, Window Parent)
+        {   // vraci true, pokud bylo stisknuto OK
+            Dlg_LoaderProps Dlg = new Dlg_LoaderProps();
 
+            Dlg.Run = eventLoader.bRun;
+            Dlg.LoaderName = eventLoader.LeafName;
+            Dlg.DbConnStr = eventLoader.DB_ConnectString;
+            Dlg.TableName = eventLoader.DB_TableName;
+            Dlg.SysTableName = eventLoader.DB_SysTableName;
+            Dlg.UDPSocketLocal = eventLoader.SocketLocal;
+            Dlg.UDPSocketRemote = eventLoader.SocketRemote;
+            Dlg.ReceiveTimeoutMs = eventLoader.iRcvTimeoutMs;
+            Dlg.IntelOrder = eventLoader.bIntelOrder;
+            Dlg.N4T_Version = eventLoader.N4T_version;
+            Dlg.LastPtrIsFreePtr = eventLoader.bLastPtrIsFreePtr;
+            Dlg.EventBodyLenBytes = eventLoader.iEventBodyLenBytes;
+            Dlg.TypeFieldByteOffs = eventLoader.iTypeFieldByteOffs;
+            Dlg.EventsList = eventLoader.EventsList;
+            Dlg.AdjustTimePeriod_Sec = eventLoader.iAdjustTimePeriod_Sec;
+            Dlg.AdjustTimeOffset_Sec = eventLoader.iAdjustTimeOffset_Sec;
+
+            Dlg.Owner = Parent;
+            if ((bool)Dlg.ShowDialog() == true)
+            {
+                //here will be stop and start of the Loader
+
+                eventLoader.bRun = Dlg.Run;
+                eventLoader.LeafName = Dlg.LoaderName;
+                eventLoader.DB_ConnectString = Dlg.DbConnStr;
+                eventLoader.DB_TableName = Dlg.TableName;
+                eventLoader.DB_SysTableName = Dlg.SysTableName;
+                eventLoader.SocketLocal = Dlg.UDPSocketLocal;
+                eventLoader.SocketRemote = Dlg.UDPSocketRemote;
+                eventLoader.iRcvTimeoutMs = Dlg.ReceiveTimeoutMs;
+                eventLoader.bIntelOrder = Dlg.IntelOrder;
+                eventLoader.N4T_version = Dlg.N4T_Version;
+                eventLoader.bLastPtrIsFreePtr = Dlg.LastPtrIsFreePtr;
+                eventLoader.iEventBodyLenBytes = Dlg.EventBodyLenBytes;
+                eventLoader.iTypeFieldByteOffs = Dlg.TypeFieldByteOffs;
+                eventLoader.EventsList = Dlg.EventsList;
+                eventLoader.iAdjustTimePeriod_Sec = Dlg.AdjustTimePeriod_Sec;
+                eventLoader.iAdjustTimeOffset_Sec = Dlg.AdjustTimeOffset_Sec;
+
+                return eventLoader;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
 

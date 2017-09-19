@@ -24,25 +24,25 @@ namespace ExN2
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        CfgTreeNode_VM[] nodes;
+        List<CfgTreeNode_VM> nodes;
 
         public MainWindow() {
             InitializeComponent();
 
-            nodes = new CfgTreeNode_VM[] {
-                    new CfgTreeNode_Loaders_VM()
-                    /*new CfgTreeNode_Archivers_VM("archivers", "archiver.png")*/
+            nodes = new List<CfgTreeNode_VM> {
+                    new CfgTreeNode_Loaders_VM(),
+                    new CfgTreeNode_Archivers_VM()
                 };
 
             CfgTreeNode_Loaders_VM node0 = nodes[0] as CfgTreeNode_Loaders_VM;
-            CfgEventLoader loader = new CfgEventLoader();
-            node0.AddLeaf(loader);
-
-            /*CfgTreeNode_Archivers_VM node1 = nodes[1] as CfgTreeNode_Archivers_VM;
-            CfgTreeArchiver_VM archiver = new CfgTreeArchiver_VM();*/
+            CfgEventLoader loaderTest = new CfgEventLoader();
+            node0.AddLeaf(loaderTest);
+            CfgTreeNode_Archivers_VM node1 = nodes[1] as CfgTreeNode_Archivers_VM;
+            CfgTreeArchiver_VM archiverTest = new CfgTreeArchiver_VM();
+            node1.AddLeaf(archiverTest);
+            
             //node1.AddLeaf(archiver);
             //node1.AddLeaf(archiver);
-
 
             treeView.ItemsSource = nodes;
             //treeView.
@@ -59,22 +59,31 @@ namespace ExN2
         private void button_Save_Click(object sender, RoutedEventArgs e) {
             //nodes[0].LeafList[1].LeafName = "Zmena";
         }
-
- 
         //...............................................................................
         private void treeView_BtnNew(object sender, RoutedEventArgs e) {
-            //Object ob = treeView.SelectedItem;
-            //if (Common.IsItLoader(ob)) {
-                nodes[0].New(this);
-            //}
+            object selectedItem = treeView.SelectedItem;           
+            var itemName = treeView.Items.CurrentItem.GetType().Name;
+            if (nodes.Exists(p => p.GetType().Name == itemName))
+                nodes.Single(p => p.GetType().Name == itemName).New(this);
+            treeView.Items.Refresh();
         }
 
         //...............................................................................
         private void treeView_BtnDel(object sender, RoutedEventArgs e) {
+            object selectedItem = treeView.SelectedItem;
+            var itemName = treeView.Items.CurrentItem.GetType().Name;
+            if (nodes.Exists(p => p.GetType().Name == itemName))
+                nodes.Single(p => p.GetType().Name == itemName).Delete(selectedItem, this);
+            treeView.Items.Refresh();
         }
 
         //...............................................................................
         private void treeView_BtnEdit(object sender, RoutedEventArgs e) {
+            object selectedItem = treeView.SelectedItem;
+            var itemName = treeView.Items.CurrentItem.GetType().Name;
+            if (nodes.Exists(p => p.GetType().Name == itemName))
+                nodes.Single(p => p.GetType().Name == itemName).Edit(selectedItem, this);
+            treeView.Items.Refresh();
         }
 
         //...............................................................................
@@ -89,6 +98,16 @@ namespace ExN2
             Dlg_ConvertOldLoader Dlg = new Dlg_ConvertOldLoader();
             Dlg.Owner = this;
             Dlg.ShowDialog();
+            CfgTreeNode_Loaders_VM node0 = nodes[0] as CfgTreeNode_Loaders_VM;
+            if (Dlg.loadersList.CfgEventLoaderList != null)
+            {
+                foreach (var loader in Dlg.loadersList.CfgEventLoaderList)
+                {
+                    //loader.LeafName
+                    node0.AddLeaf(loader);
+                }
+            }
+            treeView.ItemsSource = nodes;
         }
 
         //...............................................................................
