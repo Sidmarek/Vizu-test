@@ -47,15 +47,19 @@ namespace ExN2.Wnds
             eventItem.iConstValue = iConstValue;
             eventItem.rCoef = rCoef;
             eventLineList.Add(eventItem);
-            //eventLineListView.
+            eventLineListView.ItemsSource = null;
+            eventLineListView.ItemsSource = eventLineList;
         }
         private void Button_Edit_Click(object sender, RoutedEventArgs e)
         {
             if (eventLineList == null)
                 eventLineList = new List<cCfgEventItem>();
             cCfgEventItem itemForEdit = (cCfgEventItem)eventLineListView.SelectedItem;
+            sName = null;
             sName = itemForEdit.sName;
+            
             Type = itemForEdit.Type;
+
             bStore = itemForEdit.bStore;
             iLenBytes = itemForEdit.iLenBytes;
             iConstValue = itemForEdit.iConstValue;
@@ -67,6 +71,8 @@ namespace ExN2.Wnds
                 eventLineList = new List<cCfgEventItem>();
             cCfgEventItem itemForDelete = (cCfgEventItem)eventLineListView.SelectedItem;
             eventLineList.Remove(itemForDelete);
+            eventLineListView.ItemsSource = null;
+            eventLineListView.ItemsSource = eventLineList;
         }
         private void button_OK_Click(object sender, RoutedEventArgs e)
         {
@@ -88,6 +94,8 @@ namespace ExN2.Wnds
             newItem.iConstValue = iConstValue;
             newItem.rCoef = rCoef;
             eventLineList.Add(newItem);
+            eventLineListView.ItemsSource = null;
+            eventLineListView.ItemsSource = eventLineList;
         }
     }
 }

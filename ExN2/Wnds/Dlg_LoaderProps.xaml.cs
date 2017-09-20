@@ -52,11 +52,14 @@ namespace ExN2 {
 
         private void Button_AddEvent_Click(object sender, RoutedEventArgs e)
         {
-            Wnds.Dlg_AddEvent Dlg = new Wnds.Dlg_AddEvent();
-            bool done = (bool)Dlg.ShowDialog();
+            Wnds.Dlg_AddEvent Dlg2 = new Wnds.Dlg_AddEvent();
+            bool done = (bool)Dlg2.ShowDialog();
             if (done == true)
             {
-                EventsList.Add(new cfgEvent() { EventTypes = Dlg.EventTypes,eventLineList = Dlg.eventLineList});
+                if (EventsList == null)
+                    EventsList = new List<cfgEvent>();
+                EventsList.Add(new cfgEvent() { EventTypes = Dlg2.EventTypes,eventLineList = Dlg2.eventLineList});
+                EventsListView.ItemsSource = EventsList;
             }
         }
 
@@ -64,21 +67,27 @@ namespace ExN2 {
         {
             cfgEvent itemForEdit = (cfgEvent)EventsListView.SelectedItem;
             
-            Wnds.Dlg_AddEvent Dlg = new Wnds.Dlg_AddEvent();
-            bool done = (bool)Dlg.ShowDialog();
-            Dlg.EventTypes = itemForEdit.EventTypes;
-            Dlg.eventLineList = itemForEdit.eventLineList;
+            Wnds.Dlg_AddEvent Dlg3 = new Wnds.Dlg_AddEvent();
+            bool done = (bool)Dlg3.ShowDialog();
+            Dlg3.EventTypes = itemForEdit.EventTypes;
+            Dlg3.eventLineList = itemForEdit.eventLineList;
             if (done == true)
             {
+                if (EventsList == null)
+                    EventsList = new List<cfgEvent>();
                 EventsList.Remove(itemForEdit);
-                EventsList.Add(new cfgEvent() { EventTypes = Dlg.EventTypes, eventLineList = Dlg.eventLineList });
+                EventsList.Add(new cfgEvent() { EventTypes = Dlg3.EventTypes, eventLineList = Dlg3.eventLineList });
+                EventsListView.ItemsSource = EventsList;
             }
         }
 
         private void Button_EditEvent_Click(object sender, RoutedEventArgs e)
         {
+            if (EventsList == null)
+                EventsList = new List<cfgEvent>();
             cfgEvent itemForDelete = (cfgEvent)EventsListView.SelectedItem;
             EventsList.Remove(itemForDelete);
+            EventsListView.ItemsSource = EventsList;
         }
     }
 }
