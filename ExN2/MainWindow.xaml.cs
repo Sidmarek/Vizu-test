@@ -97,9 +97,9 @@ namespace ExN2
         private void MenuItem_LoadOldIni(object sender, RoutedEventArgs e) {
             Dlg_ConvertOldLoader Dlg = new Dlg_ConvertOldLoader();
             Dlg.Owner = this;
-            Dlg.ShowDialog();
             CfgTreeNode_Loaders_VM node0 = nodes[0] as CfgTreeNode_Loaders_VM;
-            if (Dlg.loadersList.CfgEventLoaderList != null)
+            (bool)Dlg.ShowDialog();
+            if (Dlg.loadersList.CfgEventLoaderList != null && )
             {
                 foreach (var loader in Dlg.loadersList.CfgEventLoaderList)
                 {
@@ -107,7 +107,7 @@ namespace ExN2
                     node0.AddLeaf(loader);
                 }
             }
-            treeView.ItemsSource = nodes;
+            treeView.Items.Refresh();
         }
 
         //...............................................................................
