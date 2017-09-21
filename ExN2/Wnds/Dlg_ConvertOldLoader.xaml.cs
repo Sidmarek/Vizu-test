@@ -31,6 +31,7 @@ namespace ExN2 {
             var CLC =  Ldr.LoadFromOldIni(textBox_SrcFile.Text);
             loadersList = CLC;
             Ldr.SaveToXml(textBox_DstFile.Text, CLC);
+            DialogResult = true;
         }
 
         private void btn_SelSrcFile_Click(object sender, RoutedEventArgs e) {

@@ -36,7 +36,7 @@ namespace ExN2
 
             CfgTreeNode_Loaders_VM node0 = nodes[0] as CfgTreeNode_Loaders_VM;
             CfgEventLoader loaderTest = new CfgEventLoader();
-            node0.AddLeaf(loaderTest);
+            //node0.AddLeaf(loaderTest);
             CfgTreeNode_Archivers_VM node1 = nodes[1] as CfgTreeNode_Archivers_VM;
             CfgTreeArchiver_VM archiverTest = new CfgTreeArchiver_VM();
             node1.AddLeaf(archiverTest);
@@ -66,6 +66,8 @@ namespace ExN2
             if (nodes.Exists(p => p.GetType().Name == itemName))
                 nodes.Single(p => p.GetType().Name == itemName).New(this);
             treeView.Items.Refresh();
+            //TreeViewItem treeViewItem = treeView.ItemContainerGenerator.ContainerFromItem(selectedItem) as TreeViewItem;
+            //treeViewItem.IsExpanded = true;
         }
 
         //...............................................................................
@@ -75,6 +77,8 @@ namespace ExN2
             if (nodes.Exists(p => p.GetType().Name == itemName))
                 nodes.Single(p => p.GetType().Name == itemName).Delete(selectedItem, this);
             treeView.Items.Refresh();
+            //TreeViewItem treeViewItem = treeView.ItemContainerGenerator.ContainerFromItem(selectedItem) as TreeViewItem;
+            //treeViewItem.IsExpanded = true;
         }
 
         //...............................................................................
@@ -84,6 +88,8 @@ namespace ExN2
             if (nodes.Exists(p => p.GetType().Name == itemName))
                 nodes.Single(p => p.GetType().Name == itemName).Edit(selectedItem, this);
             treeView.Items.Refresh();
+            //TreeViewItem treeViewItem = treeView.ItemContainerGenerator.ContainerFromItem(selectedItem) as TreeViewItem;
+            //treeViewItem.IsExpanded = true;
         }
 
         //...............................................................................
@@ -98,8 +104,8 @@ namespace ExN2
             Dlg_ConvertOldLoader Dlg = new Dlg_ConvertOldLoader();
             Dlg.Owner = this;
             CfgTreeNode_Loaders_VM node0 = nodes[0] as CfgTreeNode_Loaders_VM;
-            (bool)Dlg.ShowDialog();
-            if (Dlg.loadersList.CfgEventLoaderList != null && )
+            bool end = (bool)Dlg.ShowDialog();
+            if (Dlg.loadersList.CfgEventLoaderList != null && end == true)
             {
                 foreach (var loader in Dlg.loadersList.CfgEventLoaderList)
                 {
@@ -108,6 +114,16 @@ namespace ExN2
                 }
             }
             treeView.Items.Refresh();
+            treeView.ItemsSource = nodes;
+
+            //would select cfgLoader item from tree view
+            TreeViewItem treeViewItem = treeView.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem; 
+            treeViewItem.IsExpanded = true;
+            TextBlock logText = new TextBlock();
+            logText.Text = "Your ini file has been converted into xml";
+            StackPanel logStackPanel = new StackPanel();
+            logStackPanel.Children.Add(logText);
+            scrollViewer_Log.Content = logStackPanel;
         }
 
         //...............................................................................

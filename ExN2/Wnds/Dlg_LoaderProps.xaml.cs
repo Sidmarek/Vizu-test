@@ -35,6 +35,46 @@ namespace ExN2 {
         public int AdjustTimeOffset_Sec { get; set; }
         public List<cfgEvent> EventsList { get; set; }
 
+        public void SetDlgData(CfgEventLoader eventLoader)
+        {
+            Run = eventLoader.bRun;
+            LoaderName = eventLoader.LeafName;
+            DbConnStr = eventLoader.DB_ConnectString;
+            TableName = eventLoader.DB_TableName;
+            SysTableName = eventLoader.DB_SysTableName;
+            UDPSocketLocal = eventLoader.SocketLocal;
+            UDPSocketRemote = eventLoader.SocketRemote;
+            ReceiveTimeoutMs = eventLoader.iRcvTimeoutMs;
+            IntelOrder = eventLoader.bIntelOrder;
+            N4T_Version = eventLoader.N4T_version;
+            LastPtrIsFreePtr = eventLoader.bLastPtrIsFreePtr;
+            EventBodyLenBytes = eventLoader.iEventBodyLenBytes;
+            TypeFieldByteOffs = eventLoader.iTypeFieldByteOffs;
+            EventsList = eventLoader.EventsList;
+            AdjustTimePeriod_Sec = eventLoader.iAdjustTimePeriod_Sec;
+            AdjustTimeOffset_Sec = eventLoader.iAdjustTimeOffset_Sec;
+        }
+
+        public void GetDlgData(CfgEventLoader eventLoader)
+        {
+            eventLoader.bRun = Run;
+            eventLoader.LeafName = LoaderName;
+            eventLoader.DB_ConnectString = DbConnStr;
+            eventLoader.DB_TableName = TableName;
+            eventLoader.DB_SysTableName = SysTableName;
+            eventLoader.SocketLocal = UDPSocketLocal;
+            eventLoader.SocketRemote = UDPSocketRemote;
+            eventLoader.iRcvTimeoutMs = ReceiveTimeoutMs;
+            eventLoader.bIntelOrder = IntelOrder;
+            eventLoader.N4T_version = N4T_Version;
+            eventLoader.bLastPtrIsFreePtr = LastPtrIsFreePtr;
+            eventLoader.iEventBodyLenBytes = EventBodyLenBytes;
+            eventLoader.iTypeFieldByteOffs = TypeFieldByteOffs;
+            eventLoader.EventsList = EventsList;
+            eventLoader.iAdjustTimePeriod_Sec = AdjustTimePeriod_Sec;
+            eventLoader.iAdjustTimeOffset_Sec = AdjustTimeOffset_Sec;
+        }
+
         public Dlg_LoaderProps() {
             InitializeComponent();
             this.DataContext = this;    // data binding

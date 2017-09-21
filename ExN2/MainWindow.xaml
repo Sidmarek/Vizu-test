@@ -94,8 +94,7 @@
             </Grid>
  
             <Label x:Name="label1" Grid.Column="2" Content="Log" FontSize="11" Height="25" VerticalAlignment="Top"/>
-            <ScrollViewer Grid.Column="2" Margin="5,20,5,5" Background="#FFB4B4B4"  >
-                sdsdsdasdsd dsdasdsds sdas asd asd asd
+            <ScrollViewer x:Name="scrollViewer_Log" Grid.Column="2" Margin="5,20,5,5" Background="#FFB4B4B4"  >
             </ScrollViewer>
         </Grid>
 

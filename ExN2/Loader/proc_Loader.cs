@@ -177,11 +177,11 @@ namespace ExN2 {
 
         // false: normalne ukazuje LastPtr v PLC na posledni platny zaznam
         // true:  ve starsich programech ukazuje LastPtr v PLC na prvni volny zaznam
-        bool bLastPtrIsFreePtr;
+        public bool bLastPtrIsFreePtr;
 
         // perioda a offset pro serizovani casu PLC
-        int iAdjustTimePeriod_Sec;
-        int iAdjustTimeOffset_Sec;
+        public int iAdjustTimePeriod_Sec;
+        public int iAdjustTimeOffset_Sec;
 
         public List<cfgEvent> EventsList;
 
@@ -219,6 +219,20 @@ namespace ExN2 {
             }
         }
 
+        /// <summary>
+        /// Load confguration from 
+        /// </summary>
+        /// <param name="FullName"></param>
+        /// <returns>Full configuration</returns>
+        public CfgLoaderConfig LoadToXml(String FullName)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(CfgLoaderConfig));
+            StreamReader reader = new StreamReader(FullName);
+
+            var configuration = new CfgLoaderConfig();
+            configuration = (CfgLoaderConfig)serializer.Deserialize(reader);
+            return configuration;
+        }
         //...........................................................................
         // z INI souboru nacte konfiguraci jednoho loaderu do dodane struktury pCfg.
         // Jednotlivy loader je v INI identifikovan cislem (zero based).
@@ -294,11 +308,15 @@ namespace ExN2 {
                         name = name.Replace("]", "");
                         if (name != "Common")
                         {
+                            if (cfgEventLoader.DB_ConnectString != null)
+                            {
+                                cfgEventLoader._LeafName = _LeafName;
+                                cfgEventLoader.LeafName = LeafName;
+                                CLC.CfgEventLoaderList.Add(cfgEventLoader);
+                            }
                             LeafName = name;
                             _LeafName = name;
-                            if(_LeafName != null)
-                                CLC.CfgEventLoaderList.Add(cfgEventLoader);
-                            cfgEventLoader.LeafName = LeafName;                            
+                            //cfgEventLoader.LeafName = LeafName;                            
                         }
                     }
                     else if (line.Contains("=") && bAfterEventStart == false)
@@ -438,6 +456,8 @@ namespace ExN2 {
             CfgEventLoader lastEventLoader = new CfgEventLoader();
 
             lastEventLoader.bRun = bRun;
+            lastEventLoader.LeafName = LeafName;
+            lastEventLoader._LeafName = _LeafName;
             lastEventLoader.sTaskName = sTaskName;
             lastEventLoader.DB_ConnectString = DB_ConnectString;
             lastEventLoader.DB_TableName = DB_TableName;
@@ -544,49 +564,28 @@ namespace ExN2 {
             Dlg.Owner = Parent;
             return (bool)Dlg.ShowDialog();
         }
+        //...........................................................................
+        /*public bool New(Window Parent)
+        {   // vraci true, pokud bylo stisknuto OK
+            Dlg_LoaderProps Dlg = new Dlg_LoaderProps();
+            Dlg.Owner = Parent;
+            bool Res = (bool)Dlg.ShowDialog();
+            Dlg.GetDlgData(this);
+            return Res;
+        }*/
+
+        //...........................................................................
         public CfgEventLoader Edit(CfgEventLoader eventLoader, Window Parent)
         {   // vraci true, pokud bylo stisknuto OK
             Dlg_LoaderProps Dlg = new Dlg_LoaderProps();
 
-            Dlg.Run = eventLoader.bRun;
-            Dlg.LoaderName = eventLoader.LeafName;
-            Dlg.DbConnStr = eventLoader.DB_ConnectString;
-            Dlg.TableName = eventLoader.DB_TableName;
-            Dlg.SysTableName = eventLoader.DB_SysTableName;
-            Dlg.UDPSocketLocal = eventLoader.SocketLocal;
-            Dlg.UDPSocketRemote = eventLoader.SocketRemote;
-            Dlg.ReceiveTimeoutMs = eventLoader.iRcvTimeoutMs;
-            Dlg.IntelOrder = eventLoader.bIntelOrder;
-            Dlg.N4T_Version = eventLoader.N4T_version;
-            Dlg.LastPtrIsFreePtr = eventLoader.bLastPtrIsFreePtr;
-            Dlg.EventBodyLenBytes = eventLoader.iEventBodyLenBytes;
-            Dlg.TypeFieldByteOffs = eventLoader.iTypeFieldByteOffs;
-            Dlg.EventsList = eventLoader.EventsList;
-            Dlg.AdjustTimePeriod_Sec = eventLoader.iAdjustTimePeriod_Sec;
-            Dlg.AdjustTimeOffset_Sec = eventLoader.iAdjustTimeOffset_Sec;
-
+            Dlg.SetDlgData(eventLoader);
             Dlg.Owner = Parent;
             if ((bool)Dlg.ShowDialog() == true)
             {
                 //here will be stop and start of the Loader
 
-                eventLoader.bRun = Dlg.Run;
-                eventLoader.LeafName = Dlg.LoaderName;
-                eventLoader.DB_ConnectString = Dlg.DbConnStr;
-                eventLoader.DB_TableName = Dlg.TableName;
-                eventLoader.DB_SysTableName = Dlg.SysTableName;
-                eventLoader.SocketLocal = Dlg.UDPSocketLocal;
-                eventLoader.SocketRemote = Dlg.UDPSocketRemote;
-                eventLoader.iRcvTimeoutMs = Dlg.ReceiveTimeoutMs;
-                eventLoader.bIntelOrder = Dlg.IntelOrder;
-                eventLoader.N4T_version = Dlg.N4T_Version;
-                eventLoader.bLastPtrIsFreePtr = Dlg.LastPtrIsFreePtr;
-                eventLoader.iEventBodyLenBytes = Dlg.EventBodyLenBytes;
-                eventLoader.iTypeFieldByteOffs = Dlg.TypeFieldByteOffs;
-                eventLoader.EventsList = Dlg.EventsList;
-                eventLoader.iAdjustTimePeriod_Sec = Dlg.AdjustTimePeriod_Sec;
-                eventLoader.iAdjustTimeOffset_Sec = Dlg.AdjustTimeOffset_Sec;
-
+                Dlg.GetDlgData(eventLoader);
                 return eventLoader;
             }
             else
