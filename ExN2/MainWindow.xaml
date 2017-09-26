@@ -16,7 +16,10 @@
         </Grid.RowDefinitions>
 
         <Menu x:Name="menu" Grid.Row="0" HorizontalAlignment="Stretch">
-            <MenuItem Header="_File" FontSize="11"/>
+            <MenuItem Header="_File" FontSize="11">
+                <MenuItem Header="Save current configuration.." FontSize="11" Click="MenuItem_SaveXml"/>
+                <MenuItem Header="Load another configuration.." FontSize="11" Click="MenuItem_LoadXml"/>
+            </MenuItem>
             <MenuItem Header="_Tools" FontSize="11">
                 <MenuItem Header="_Loader old file converter" FontSize="11" Click="MenuItem_LoadOldIni"/>
                 <MenuItem Header="_Empty" FontSize="11"/>

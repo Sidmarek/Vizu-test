@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -130,6 +131,37 @@ namespace ExN2
         private void SomeCommand(object sender, RoutedEventArgs e) {
             System.Windows.MessageBox.Show("Esc");
 
+        }
+
+        private void MenuItem_SaveXml(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = false;
+            openFileDialog.CheckFileExists = true;
+            openFileDialog.Filter = "Xml config files (*.xml)|*.xml|All files (*.*)|*.*";
+            openFileDialog.InitialDirectory = Common.cfgFilesPath;
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                CfgLoaderConfig cfg = new CfgLoaderConfig();
+                cfg.CfgEventLoaderList = (nodes[0] as CfgTreeNode_Loaders_VM).LeafList;
+                scrollViewer_Log.Content += "Configuration has been saved as " + openFileDialog.FileName + "\n";
+            }
+        }
+        private void MenuItem_LoadXml(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = false;
+            openFileDialog.Filter = "Xml config files (*.xml)|*.xml|All files (*.*)|*.*";
+            openFileDialog.InitialDirectory = Common.cfgFilesPath;
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                CfgLoaderConfig cfg = new CfgLoaderConfig();
+                CfgEventLoader Ldr = new CfgEventLoader();   
+                cfg = Ldr.LoadFromXml(openFileDialog.FileName);
+                (nodes[0] as CfgTreeNode_Loaders_VM).LeafList = cfg.CfgEventLoaderList;
+                scrollViewer_Log.Content += "Configuration has been loaded as " + openFileDialog.FileName + "\n";
+                treeView.Items.Refresh();
+            }
         }
     }
 }

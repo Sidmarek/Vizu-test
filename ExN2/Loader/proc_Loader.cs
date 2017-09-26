@@ -224,7 +224,7 @@ namespace ExN2 {
         /// </summary>
         /// <param name="FullName"></param>
         /// <returns>Full configuration</returns>
-        public CfgLoaderConfig LoadToXml(String FullName)
+        public CfgLoaderConfig LoadFromXml(String FullName)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(CfgLoaderConfig));
             StreamReader reader = new StreamReader(FullName);

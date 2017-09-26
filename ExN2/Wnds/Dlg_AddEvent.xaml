@@ -21,18 +21,21 @@
         <Button x:Name="button_DeleteItem" Content="Delete Item" HorizontalAlignment="Left" Margin="229,195,0,0" VerticalAlignment="Top" Width="75" Click="Button_Delete_Click"/>
         <Label x:Name="label_eventLineListView" Content="Items:" HorizontalAlignment="Left" Margin="10,192,0,0" VerticalAlignment="Top" Width="45"/>
         <ListBox x:Name="eventLineListView" ItemsSource="{Binding eventLineList}" HorizontalAlignment="Left" Height="120" Margin="10,220,-58,-118" VerticalAlignment="Top" Width="348"/>
-        <Label x:Name="label_ItemName" Content="Item name" HorizontalAlignment="Left" Margin="10,9,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBox_ItemName" Text="{Binding sName}" HorizontalAlignment="Left" Height="23" Margin="131,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label x:Name="label_EventItemType" Content="Item Type" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top"/>
-        <ComboBox x:Name="EventItemType" ItemsSource="{Binding Source={StaticResource EventItemType}}" HorizontalAlignment="Left" Margin="131,40,0,0" VerticalAlignment="Top" Width="120"/>
-        <CheckBox x:Name="checkBox_Store" Content="Store" HorizontalAlignment="Left" Margin="13,71,0,0" VerticalAlignment="Top" IsChecked="{Binding bStore}"/>
-        <Label x:Name="label_BytesLen" Content="Length in bytes" HorizontalAlignment="Left" Margin="9,89,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBox_BytesLen" Text="{Binding iLenBytes, StringFormat=N0}"  HorizontalAlignment="Left" Height="23" Margin="131,92,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67"/>
-        <Label x:Name="label_ConstValue" Content="Const Value" HorizontalAlignment="Left" Margin="9,117,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBox_ConstValue" Text="{Binding iConstValue, StringFormat=N0}"  HorizontalAlignment="Left" Height="23" Margin="131,120,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67"/>
-        <Label x:Name="label_Coef" Content="Coeficient" HorizontalAlignment="Left" Margin="9,145,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBox_Coef" Text="{Binding rCoef, StringFormat=N1}"  HorizontalAlignment="Left" Height="23" Margin="131,148,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67"/>
+        <Label x:Name="label_ItemName" Content="Item name" HorizontalAlignment="Left" Margin="13,28,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBox_ItemName" Text="{Binding sName}" HorizontalAlignment="Left" Height="23" Margin="134,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label_EventItemType" Content="Item Type" HorizontalAlignment="Left" Margin="13,59,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="EventItemType" ItemsSource="{Binding Source={StaticResource EventItemType}}" HorizontalAlignment="Left" Margin="134,59,0,0" VerticalAlignment="Top" Width="120"/>
+        <CheckBox x:Name="checkBox_Store" Content="Store" HorizontalAlignment="Left" Margin="16,90,0,0" VerticalAlignment="Top" IsChecked="{Binding bStore}"/>
+        <Label x:Name="label_BytesLen" Content="Length in bytes" HorizontalAlignment="Left" Margin="12,108,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBox_BytesLen" Text="{Binding iLenBytes, StringFormat=N0}"  HorizontalAlignment="Left" Height="23" Margin="134,111,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67"/>
+        <Label x:Name="label_ConstValue" Content="Const Value" HorizontalAlignment="Left" Margin="12,136,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBox_ConstValue" Text="{Binding iConstValue, StringFormat=N0}"  HorizontalAlignment="Left" Height="23" Margin="134,139,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67"/>
+        <Label x:Name="label_Coef" Content="Coeficient" HorizontalAlignment="Left" Margin="12,164,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBox_Coef" Text="{Binding rCoef, StringFormat=N1}"  HorizontalAlignment="Left" Height="23" Margin="134,167,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67"/>
         <Button x:Name="button_SaveItem" Content="Save Item" HorizontalAlignment="Left" Margin="309,195,0,0" VerticalAlignment="Top" Width="75" Click="Button_Save_Click"/>
         <Label x:Name="label_eventLineListView_Copy" Content="For save (edit) you have to select the original one" HorizontalAlignment="Left" Margin="190,347,0,0" VerticalAlignment="Top" Width="200" FontSize="8"/>
+        <TextBox x:Name="textBox_eventsType" Text="{Binding EventsType}" HorizontalAlignment="Left" Height="23" Margin="134,3,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label_eventsType" Content="Defined for events :" HorizontalAlignment="Left" Margin="13,2,0,0" VerticalAlignment="Top"/>
+        <Label Content="(separate it with comma)" HorizontalAlignment="Left" Margin="259,5,0,0" VerticalAlignment="Top" Width="141" FontSize="8"/>
     </Grid>
 </Window>

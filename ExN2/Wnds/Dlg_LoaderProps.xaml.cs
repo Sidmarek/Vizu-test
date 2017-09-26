@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExN2.Wnds;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -123,11 +124,17 @@ namespace ExN2 {
 
         private void Button_EditEvent_Click(object sender, RoutedEventArgs e)
         {
-            if (EventsList == null)
-                EventsList = new List<cfgEvent>();
-            cfgEvent itemForDelete = (cfgEvent)EventsListView.SelectedItem;
-            EventsList.Remove(itemForDelete);
-            EventsListView.ItemsSource = EventsList;
+           if (EventsList == null)
+                EventsList = new List<cfgEvent>(); 
+            Dlg_AddEvent dlg = new Dlg_AddEvent();
+            if (dlg.ShowDialog() == true) {
+                
+                cfgEvent itemForDelete = (cfgEvent)EventsListView.SelectedItem;
+                EventsList.Remove(itemForDelete);
+                EventsListView.ItemsSource = EventsList;
+                EventsList.Add(new cfgEvent { EventTypes = dlg.EventTypes, eventLineList = dlg.eventLineList });
+            }
         }
+
     }
 }
